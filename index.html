@@ -903,10 +903,6 @@
       <p>¿Tenés un proyecto, una posición o simplemente querés charlar sobre tecnología? Escribime, respondo rápido.</p>
       <ul class="contact-info-list">
         <li>
-          <span class="icon">📧</span>
-          <a href="mailto:nicolaszarantonellodev@gmail.com">nicolaszarantonellodev@gmail.com</a>
-        </li>
-        <li>
           <span class="icon">📱</span>
           <span>+54 3455 226652</span>
         </li>
@@ -925,20 +921,20 @@
       </ul>
     </div>
     <div class="contact-right reveal">
-      <form class="contact-form" id="contactForm">
+      <form class="contact-form" id="contactForm" action="https://formspree.io/f/meelpwwp" method="POST">
         <div class="form-group">
           <label>Tu nombre</label>
-          <input type="text" placeholder="Empresa / Nombre" required />
+          <input type="text" name="nombre" placeholder="Empresa / Nombre" required />
         </div>
         <div class="form-group">
           <label>Email</label>
-          <input type="email" placeholder="correo@empresa.com" required />
+          <input type="email" name="email" placeholder="correo@empresa.com" required />
         </div>
         <div class="form-group">
           <label>Mensaje</label>
-          <textarea rows="4" placeholder="Contame de qué se trata..." required></textarea>
+          <textarea name="mensaje" rows="4" placeholder="Contame de qué se trata..." required></textarea>
         </div>
-        <button type="submit" class="btn btn-white">Enviar mensaje →</button>
+        <button type="submit" class="btn btn-white" id="submitBtn">Enviar mensaje →</button>
         <div class="form-success" id="formSuccess">
           ✓ Gracias por escribirme. Te respondo a la brevedad.
         </div>
@@ -949,60 +945,76 @@
 
 <!-- FOOTER -->
 <footer>
-  <p>© 2026 Nicolás Zarantonello · <a href="mailto:nicolaszarantonellodev@gmail.com">nicolaszarantonellodev@gmail.com</a> · Victoria, Entre Ríos 🇦🇷</p>
+  <p>© 2026 Nicolás Zarantonello · Programador, Analista y Técnico · Victoria, Entre Ríos 🇦🇷</p>
 </footer>
 
 <script>
-  // ── Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('visible'), i * 80);
-        observer.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  reveals.forEach(el => observer.observe(el));
+// ── Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
 
-  // ── Skill bars on scroll
-  const barObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.querySelectorAll('.skill-bar-fill').forEach(bar => {
-          bar.style.width = bar.dataset.width + '%';
-        });
-        barObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.3 });
-  document.querySelectorAll('.skill-card').forEach(el => barObserver.observe(el));
+// ── Skill bars on scroll
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.skill-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
+      barObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.skill-card').forEach(el => barObserver.observe(el));
 
-  // ── Form submit (simulado)
-  document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = this.querySelector('button');
-    btn.textContent = 'Enviando...';
-    btn.disabled = true;
-    setTimeout(() => {
+// ── Form submit con Formspree
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch(this.action, {
+      method: 'POST',
+      body: new FormData(this),
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
       btn.style.display = 'none';
       document.getElementById('formSuccess').style.display = 'block';
-    }, 1000);
-  });
+      this.reset();
+    } else {
+      btn.textContent = 'Error al enviar. Intentá de nuevo.';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    btn.textContent = 'Error de red. Intentá de nuevo.';
+    btn.disabled = false;
+  }
+});
 
-  // ── Nav active link highlight on scroll
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-links a');
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(s => {
-      if (window.scrollY >= s.offsetTop - 100) current = s.id;
-    });
-    navLinks.forEach(a => {
-      a.style.color = a.getAttribute('href') === '#' + current
-        ? 'var(--accent)' : '';
-    });
+// ── Nav active link highlight on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
   });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current
+      ? 'var(--accent)' : '';
+  });
+});
 </script>
 </body>
 </html>
